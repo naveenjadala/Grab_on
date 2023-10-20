@@ -11,7 +11,7 @@ const app = express();
 const { sequelize } = require("./db");
 const restaurantsRoute = require("./src/routes/restaurants.router");
 const menuRouter = require("./src/routes/menu.router");
-const userRouter = require("./src/routes/user.router");
+const userRouter = require("./src/routes/UserRouter");
 const { verifyToken } = require("./src/utils/AuthenticationCheck");
 
 // Test the database connection

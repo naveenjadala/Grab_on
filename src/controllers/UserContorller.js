@@ -1,9 +1,30 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const UserService = require("../services/UserService");
 require("dotenv").config();
 
-const userupDate = async (token, userId) => {
+//create new user
+const createUser = async (req, res) => {
+  try {
+    const newUser = await UserService.createUser(req.body);
+    return res.status(201).json(newUser);
+  } catch (error) {
+    res.status(400).json({ message: "Registration failed", error });
+  }
+};
+
+//Get a user by id
+const getUserById = async (req, res) => {
+  try {
+    const user = await UserService.getUserById(req.params.userId);
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ message: "Registration failed", error });
+  }
+};
+
+const updateUser = async (token, userId) => {
   try {
     const updatedData = await User.update(
       { token: token },
@@ -15,17 +36,6 @@ const userupDate = async (token, userId) => {
     return false;
   } catch (error) {
     return false;
-  }
-};
-
-const createUser = async (req, res) => {
-  const { username, email, password } = req.body;
-  try {
-    const hashPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, email, password: hashPassword });
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(400).json({ message: "Registration failed", error });
   }
 };
 
@@ -43,7 +53,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign({ email, id: user.id }, process.env.secretKey, {
       expiresIn: "10h",
     });
-    const updateUser = await userupDate(token, user.id);
+    const updateUser = await updateUser(token, user.id);
     if (updateUser) {
       return res
         .status(200)
@@ -77,7 +87,7 @@ const logout = async (req, res) => {
   }
 };
 
-const getAllUser = async (req, res) => {
+const getAllUserData = async (req, res) => {
   try {
     const users = await User.findAll();
     res.status(201).json(users);
@@ -86,4 +96,4 @@ const getAllUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, getAllUser, loginUser, logout };
+module.exports = { createUser, getAllUserData, loginUser, logout, getUserById };

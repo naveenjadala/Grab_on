@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const secretKey = "password";
+require('dotenv').config();
 
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -8,7 +8,7 @@ const verifyToken = async (req, res, next) => {
   }
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = await jwt.verify(token, secretKey);
+    const decoded = await jwt.verify(token, process.env.secretKey);
     req.user = decoded;
     next();
   } catch (err) {

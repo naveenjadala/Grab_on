@@ -21,6 +21,10 @@ const User = sequelize.define("User", {
   updatedAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
+  },
+  token: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 });
 

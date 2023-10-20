@@ -2,6 +2,7 @@ const express = require("express");
 const createError = require("http-errors");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
+const conneciton = require('./src/models/index');
 
 require("dotenv").config();
 
@@ -24,7 +25,7 @@ sequelize
   });
 
 const PORT = process.env.PORT || 8001;
-// app.use(model);
+// app.use(conneciton);
 app.use(bodyParser.json());
 app.use(logger("combined"));
 

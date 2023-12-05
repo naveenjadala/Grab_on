@@ -7,10 +7,26 @@ require("dotenv").config();
 //create new user
 const createUser = async (req, res) => {
   try {
+    const { email, password } = req.body;
     const newUser = await UserService.createUser(req.body);
-    return res.status(201).json(newUser);
+    console.log(newUser.id);
+    const token = jwt.sign({ email, id: newUser.id }, process.env.secretKey, {
+      expiresIn: "10h",
+    });
+    console.log(token);
+    const updatedUser = await updateUser(token, newUser.id);
+    if (updatedUser) {
+      return res.status(200).json({
+        newUser,
+        status: "success",
+        message: "user logged in successfully",
+        token,
+        
+      });
+    }
+    res.status(400).json({ message: "failed to signup" });
   } catch (error) {
-    res.status(400).json({ message: "Registration failed", error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -20,7 +36,7 @@ const getUserById = async (req, res) => {
     const user = await UserService.getUserById(req.params.userId);
     res.status(201).json(user);
   } catch (error) {
-    res.status(400).json({ message: "Registration failed", error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -48,20 +64,22 @@ const loginUser = async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json("Authentication Failed");
+      return res.status(401).json({ message: "Authentication Failed" });
     }
     const token = jwt.sign({ email, id: user.id }, process.env.secretKey, {
       expiresIn: "10h",
     });
-    const updateUser = await updateUser(token, user.id);
-    if (updateUser) {
-      return res
-        .status(200)
-        .json({ message: "user logged in successfully", token });
+    const updatedUser = await updateUser(token, user.id);
+    if (updatedUser) {
+      return res.status(200).json({
+        status: "success",
+        message: "user logged in successfully",
+        token,
+      });
     }
     res.status(400).json({ message: "failed to login" });
   } catch (error) {
-    res.status(400).json({ message: "Registration failed", error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -83,7 +101,7 @@ const logout = async (req, res) => {
       res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
-    res.status(400).json({ message: "logout failed", error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -92,7 +110,7 @@ const getAllUserData = async (req, res) => {
     const users = await User.findAll();
     res.status(201).json(users);
   } catch (error) {
-    res.status(400).json({ message: "Registration failed", error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 

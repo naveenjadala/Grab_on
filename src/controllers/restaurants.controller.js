@@ -3,7 +3,7 @@ const Restaurant = require("../models/restaurants.model");
 const getAllRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.findAll();
-    res.send(restaurants);
+    res.status(200).json({restaurants});
   } catch (error) {
     res.status(500).json({ error: "Could not create restaurant" });
   }

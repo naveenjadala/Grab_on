@@ -2,17 +2,23 @@ const express = require("express");
 const createError = require("http-errors");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
-const conneciton = require('./src/models/index');
+const conneciton = require("./src/models/index");
+const swaggerSetup = require("./swagger");
+const cors = require('cors');
 
 require("dotenv").config();
 
 const app = express();
+
+swaggerSetup(app);
 
 const { sequelize } = require("./db");
 const restaurantsRoute = require("./src/routes/restaurants.router");
 const menuRouter = require("./src/routes/menu.router");
 const userRouter = require("./src/routes/UserRouter");
 const { verifyToken } = require("./src/utils/AuthenticationCheck");
+
+// const email = require('./src/services/mailService')
 
 // Test the database connection
 sequelize
@@ -26,15 +32,24 @@ sequelize
 
 const PORT = process.env.PORT || 8001;
 // app.use(conneciton);
+app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(logger("combined"));
+
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).send("Something broke!");
+// });
 
 app.use("/api/restaurants", restaurantsRoute);
 app.use("/api/menu", menuRouter);
 app.use("/api/user", userRouter);
 
-app.get("/getUser/:id", (req, res) => {
-  res.json({ message: `success${req.params.id}` });
+app.use((req, res, next) => {
+  res
+    .status(404)
+    .json({ message: "Sorry, the requested resource was not found." });
 });
 
 app.listen(PORT, () => {
